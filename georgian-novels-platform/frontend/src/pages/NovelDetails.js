@@ -9,13 +9,13 @@ const NovelDetails = ({ darkMode }) => {
     const user = localStorage.getItem('user');
 
     useEffect(() => {
-        axios.get(`process.env.REACT_APP_API_URL/api/novels/${id}`).then(res => setNovel(res.data));
+        axios.get(`${process.env.REACT_APP_API_URL}/api/novels/${id}`).then(res => setNovel(res.data));
     }, [id]);
 
     const handleRate = async (score) => {
         if (!user) return alert("შეფასებისთვის გაიარეთ ავტორიზაცია");
         try {
-            const res = await axios.post(`process.env.REACT_APP_API_URL/api/novels/${id}/rate`, {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/novels/${id}/rate`, {
                 rating: score,
                 username: user
             });
