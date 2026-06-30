@@ -50,7 +50,7 @@ const Home = ({ darkMode, onOpenLogin }) => {
         e.stopPropagation();
         if (window.confirm("დარწმუნებული ხართ, რომ გსურთ წაშლა?")) {
             try {
-                await axios.delete(`http://localhost:5000/api/novels/${id}`, {
+                await axios.delete(`process.env.REACT_APP_API_URL/api/novels/${id}`, {
                     headers: { adminusername: user }
                 });
                 alert("წაიშალა!");
@@ -68,7 +68,7 @@ const Home = ({ darkMode, onOpenLogin }) => {
             return alert("გთხოვთ გაიაროთ ავტორიზაცია!");
         }
         try {
-            const res = await axios.post('http://localhost:5000/api/users/favorite', { username: user, novelId });
+            const res = await axios.post('process.env.REACT_APP_API_URL/api/users/favorite', { username: user, novelId });
             if (res.data.isFavorite) setUserFavorites(prev => [...prev, novelId]);
             else setUserFavorites(prev => prev.filter(id => id !== novelId));
         } catch (err) {
