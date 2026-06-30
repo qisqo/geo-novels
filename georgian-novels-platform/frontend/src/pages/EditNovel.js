@@ -16,7 +16,7 @@ const EditNovel = () => {
     useEffect(() => {
         axios.get(`process.env.REACT_APP_API_URL/api/novels/${id}`).then(res => {
             setTitle(res.data.title);
-            author: setAuthor(res.data.author);
+            setAuthor(res.data.author)
             setDescription(res.data.description);
             setCoverImage(res.data.coverImage || '');
             setChapters(res.data.chapters || []);
