@@ -7,7 +7,7 @@ const Navbar = ({ darkMode, setDarkMode, user, onLogout, onOpenLogin }) => {
 
     useEffect(() => {
         if (user) {
-            axios.get(`process.env.REACT_APP_API_URL/api/users/profile/${user}`)
+            axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile/${user}`)
                 .then(res => setProfile(res.data))
                 .catch(err => console.log(err));
         }
