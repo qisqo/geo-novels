@@ -10,7 +10,7 @@ const Reader = ({ darkMode, fontSize, setFontSize }) => {
     const idx = parseInt(chapterIndex);
 
     useEffect(() => {
-        axios.get(`process.env.REACT_APP_API_URL/api/novels/${id}`).then(res => setNovel(res.data));
+        axios.get(`${process.env.REACT_APP_API_URL}/api/novels/${id}`).then(res => setNovel(res.data));
         window.scrollTo(0, 0); 
     }, [id, chapterIndex]);
 
