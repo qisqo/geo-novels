@@ -14,7 +14,7 @@ const AuthModal = ({ onClose, onLoginSuccess }) => {
         const endpoint = isRegistering ? 'register' : 'login';
         
         try {
-            const res = await axios.post(`process.env.REACT_APP_API_URL/api/${endpoint}`, { 
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/${endpoint}`, { 
                 username, 
                 email: isRegistering ? email : undefined, 
                 password 
