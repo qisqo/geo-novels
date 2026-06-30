@@ -12,9 +12,12 @@ const CommentSection = ({ targetId, darkMode }) => {
             .catch(err => console.log(err));
     };
 
-    useEffect(() => {
-        fetchComments();
-    }, [targetId]);
+   useEffect(() => {
+    if (!targetId) return;
+    axios.get(`http://localhost:5000/api/comments/${targetId}`)
+        .then(res => setComments(res.data))
+        .catch(err => console.error(err));
+    }, [targetId]);argetId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
