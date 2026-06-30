@@ -7,14 +7,14 @@ const CommentSection = ({ targetId, darkMode }) => {
     const user = localStorage.getItem('user');
 
     const fetchComments = () => {
-        axios.get(`process.env.REACT_APP_API_URL/api/comments/${targetId}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/comments/${targetId}`)
             .then(res => setComments(res.data))
             .catch(err => console.log(err));
     };
 
    useEffect(() => {
     if (!targetId) return;
-    axios.get(`http://localhost:5000/api/comments/${targetId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/comments/${targetId}`)
         .then(res => setComments(res.data))
         .catch(err => console.error(err));
      }, [targetId]);
@@ -25,7 +25,7 @@ const CommentSection = ({ targetId, darkMode }) => {
         if (!newComment.trim()) return;
 
         try {
-            await axios.post('process.env.REACT_APP_API_URL/api/comments', {
+            await axios.post('${process.env.REACT_APP_API_URL}/api/comments', {
                 targetId,
                 username: user,
                 text: newComment
