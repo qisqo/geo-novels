@@ -25,7 +25,7 @@ const CommentSection = ({ targetId, darkMode }) => {
         if (!newComment.trim()) return;
 
         try {
-            await axios.post('${process.env.REACT_APP_API_URL}/api/comments', {
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/comments`, {
                 targetId,
                 username: user,
                 text: newComment
