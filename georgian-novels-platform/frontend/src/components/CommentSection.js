@@ -1,80 +1,223 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const CommentSection = ({ targetId, darkMode }) => {
-    const [comments, setComments] = useState([]);
-    const [newComment, setNewComment] = useState("");
-    const user = localStorage.getItem('user');
+const Navbar = ({ darkMode, setDarkMode, user, onLogout, onOpenLogin }) => {
+    const [profile, setProfile] = useState(null);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
-    const fetchComments = () => {
-        axios.get(`${process.env.REACT_APP_API_URL}/api/comments/${targetId}`)
-            .then(res => setComments(res.data))
-            .catch(err => console.log(err));
-    };
-
-   useEffect(() => {
-    if (!targetId) return;
-    axios.get(`${process.env.REACT_APP_API_URL}/api/comments/${targetId}`)
-        .then(res => setComments(res.data))
-        .catch(err => console.error(err));
-     }, [targetId]);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!user) return alert("კომენტარის დასაწერად გაიარეთ ავტორიზაცია");
-        if (!newComment.trim()) return;
-
-        try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/comments`, {
-                targetId,
-                username: user,
-                text: newComment
-            });
-            setNewComment("");
-            fetchComments();
-        } catch (err) {
-            alert("შეცდომა კომენტარის გაგზავნისას");
+    useEffect(() => {
+        if (user) {
+            axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile/${user}`)
+                .then(res => setProfile(res.data))
+                .catch(() => {});
+        } else {
+            setProfile(null);
         }
-    };
+    }, [user]);
+
+    const isPremium =
+        profile?.subscriptionStatus === 'premium' &&
+        profile?.subscriptionExpiresAt &&
+        new Date(profile.subscriptionExpiresAt) > new Date();
+
+    const role = localStorage.getItem('role');
 
     return (
-        <div style={{ marginTop: '40px', padding: '20px', borderTop: '1px solid #ddd', color: darkMode ? '#fff' : '#000' }}>
-            <h3>💬 კომენტარები ({comments.length})</h3>
-            
-            {user ? (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
-                    <input 
-                        value={newComment} 
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="დაწერე აზრი..." 
-                        style={inputStyle(darkMode)}
-                    />
-                    <button type="submit" style={sendBtn}>გაგზავნა</button>
-                </form>
-            ) : <p style={{ opacity: 0.7 }}>კომენტარის დასატოვებლად შედით სისტემაში.</p>}
+        <nav style={styles.nav}>
+            <Link to="/" style={styles.logo}>
+                <span style={styles.logoG}>G</span>EO NOVELS
+            </Link>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {comments.length === 0 && <p style={{ opacity: 0.5 }}>ჯერ კომენტარები არ არის...</p>}
-                {comments.map(c => (
-                    <div key={c._id} style={commentCard(darkMode)}>
-                        <img src={c.profilePicture || 'https://via.placeholder.com/150'} alt="Avatar" style={avatarStyle} />
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#3498db' }}>{c.nickname}</div>
-                            <div style={{ marginTop: '5px', lineHeight: '1.4' }}>{c.text}</div>
-                            <div style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '8px' }}>
-                                {new Date(c.createdAt).toLocaleString('ka-GE')}
-                            </div>
+            <div style={styles.right}>
+                <button
+                    onClick={() => setDarkMode(!darkMode)}
+                    style={styles.iconBtn}
+                    title={darkMode ? 'Light mode' : 'Dark mode'}
+                >
+                    {darkMode ? '☀' : '☾'}
+                </button>
+
+                {user ? (
+                    <>
+                        <Link to="/subscription" style={isPremium ? styles.premiumBadge : styles.upgradeBadge}>
+                            {isPremium ? '✦ Premium' : 'Upgrade'}
+                        </Link>
+
+                        <div style={styles.avatarWrap} onClick={() => setMenuOpen(o => !o)}>
+                            <img
+                                src={profile?.profilePicture || `https://ui-avatars.com/api/?name=${user}&background=7a5120&color=f0e8d8&bold=true`}
+                                alt={user}
+                                style={styles.avatar}
+                            />
+                            <span style={styles.username}>{profile?.nickname || user}</span>
+                            <span style={{ color: 'var(--cream-fade)', fontSize: '10px' }}>▾</span>
                         </div>
-                    </div>
-                ))}
+
+                        {menuOpen && (
+                            <div style={styles.dropdown}>
+                                <Link to="/profile" style={styles.dropItem} onClick={() => setMenuOpen(false)}>
+                                    პირადი გვერდი
+                                </Link>
+                                {role === 'admin' && (
+                                    <Link to="/add" style={styles.dropItem} onClick={() => setMenuOpen(false)}>
+                                        + ნოველის დამატება
+                                    </Link>
+                                )}
+                                <hr style={styles.dropDivider} />
+                                <button style={styles.dropLogout} onClick={() => { setMenuOpen(false); onLogout(); }}>
+                                    გამოსვლა
+                                </button>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <button onClick={onOpenLogin} style={styles.loginBtn}>შესვლა</button>
+                )}
             </div>
-        </div>
+        </nav>
     );
 };
 
-const inputStyle = (darkMode) => ({ flex: 1, padding: '12px 20px', borderRadius: '25px', border: '1px solid #ccc', outline: 'none', backgroundColor: darkMode ? '#333' : '#fff', color: darkMode ? '#fff' : '#000' });
-const sendBtn = { padding: '10px 25px', background: '#3498db', color: '#fff', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold' };
-const commentCard = (darkMode) => ({ display: 'flex', gap: '15px', padding: '15px', borderRadius: '15px', backgroundColor: darkMode ? '#333' : '#f9f9f9', border: darkMode ? '1px solid #444' : '1px solid #eee' });
-const avatarStyle = { width: '45px', height: '45px', borderRadius: '50%', objectFit: 'cover' };
+const styles = {
+    nav: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0 32px',
+        height: '64px',
+        background: 'var(--ink-soft)',
+        borderBottom: '1px solid var(--ink-border)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        backdropFilter: 'blur(8px)',
+    },
+    logo: {
+        fontFamily: 'var(--font-display)',
+        fontSize: '1.4rem',
+        fontWeight: 700,
+        color: 'var(--cream)',
+        letterSpacing: '0.05em',
+        textDecoration: 'none',
+    },
+    logoG: {
+        color: 'var(--amber)',
+    },
+    right: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        position: 'relative',
+    },
+    iconBtn: {
+        background: 'none',
+        border: 'none',
+        fontSize: '18px',
+        color: 'var(--cream-dim)',
+        cursor: 'pointer',
+        padding: '6px',
+        borderRadius: '50%',
+        lineHeight: 1,
+    },
+    premiumBadge: {
+        background: 'var(--amber-dim)',
+        color: 'var(--amber-lt)',
+        padding: '4px 12px',
+        borderRadius: '20px',
+        fontSize: '0.78rem',
+        fontFamily: 'var(--font-ui)',
+        fontWeight: 600,
+        letterSpacing: '0.02em',
+        textDecoration: 'none',
+        border: '1px solid var(--amber-dim)',
+    },
+    upgradeBadge: {
+        color: 'var(--cream-dim)',
+        padding: '4px 12px',
+        borderRadius: '20px',
+        fontSize: '0.78rem',
+        fontFamily: 'var(--font-ui)',
+        border: '1px solid var(--ink-border)',
+        textDecoration: 'none',
+    },
+    avatarWrap: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        cursor: 'pointer',
+        padding: '4px 8px',
+        borderRadius: '20px',
+        transition: 'background 0.15s',
+    },
+    avatar: {
+        width: '34px',
+        height: '34px',
+        borderRadius: '50%',
+        objectFit: 'cover',
+        border: '2px solid var(--amber-dim)',
+    },
+    username: {
+        fontFamily: 'var(--font-ui)',
+        fontSize: '0.88rem',
+        fontWeight: 500,
+        color: 'var(--cream-dim)',
+    },
+    dropdown: {
+        position: 'absolute',
+        top: 'calc(100% + 12px)',
+        right: 0,
+        background: 'var(--ink-card)',
+        border: '1px solid var(--ink-border)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-lg)',
+        minWidth: '180px',
+        padding: '6px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2px',
+    },
+    dropItem: {
+        display: 'block',
+        padding: '9px 14px',
+        borderRadius: 'var(--radius-sm)',
+        fontSize: '0.88rem',
+        fontFamily: 'var(--font-ui)',
+        color: 'var(--cream-dim)',
+        textDecoration: 'none',
+        transition: 'background 0.1s',
+    },
+    dropDivider: {
+        border: 'none',
+        borderTop: '1px solid var(--ink-border)',
+        margin: '4px 0',
+    },
+    dropLogout: {
+        display: 'block',
+        padding: '9px 14px',
+        borderRadius: 'var(--radius-sm)',
+        fontSize: '0.88rem',
+        fontFamily: 'var(--font-ui)',
+        color: '#e88',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        textAlign: 'left',
+        width: '100%',
+    },
+    loginBtn: {
+        background: 'var(--amber)',
+        color: 'var(--ink)',
+        border: 'none',
+        padding: '8px 20px',
+        borderRadius: '20px',
+        fontFamily: 'var(--font-ui)',
+        fontSize: '0.88rem',
+        fontWeight: 600,
+        cursor: 'pointer',
+        letterSpacing: '0.02em',
+    },
+};
 
-export default CommentSection;
+export default Navbar;
