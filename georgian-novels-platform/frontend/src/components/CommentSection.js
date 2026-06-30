@@ -17,7 +17,7 @@ const CommentSection = ({ targetId, darkMode }) => {
     axios.get(`http://localhost:5000/api/comments/${targetId}`)
         .then(res => setComments(res.data))
         .catch(err => console.error(err));
-    }, [targetId]);argetId]);
+     }, [targetId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
