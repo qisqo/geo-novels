@@ -14,7 +14,7 @@ const Home = ({ darkMode, onOpenLogin }) => {
     const navigate = useNavigate();
 
     const fetchNovels = () => {
-        axios.get('http://localhost:5000/api/novels')
+        axios.get('process.env.REACT_APP_API_URL/api/novels')
             .then(res => {
                 setNovels(res.data);
                 setLoading(false);
