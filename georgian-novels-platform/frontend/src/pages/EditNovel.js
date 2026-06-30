@@ -14,7 +14,7 @@ const EditNovel = () => {
     const user = localStorage.getItem('user');
 
     useEffect(() => {
-        axios.get(`process.env.REACT_APP_API_URL/api/novels/${id}`).then(res => {
+        axios.get(`${process.env.REACT_APP_API_URL}/api/novels/${id}`).then(res => {
             setTitle(res.data.title);
             setAuthor(res.data.author)
             setDescription(res.data.description);
@@ -35,7 +35,7 @@ const EditNovel = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`process.env.REACT_APP_API_URL/api/novels/${id}`, 
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/novels/${id}`, 
                 { title, author, description, coverImage, chapters },
                 { headers: { adminusername: user } }
             );
