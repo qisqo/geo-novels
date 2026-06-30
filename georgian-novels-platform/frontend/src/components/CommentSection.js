@@ -11,7 +11,7 @@ const CommentSection = ({ targetId, darkMode }) => {
 
     useEffect(() => {
         if (!targetId) return;
-        axios.get(`process.env.REACT_APP_API_URL/api/comments/${targetId}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/comments/${targetId}`)
             .then(res => setComments(res.data))
             .catch(err => console.error('Comments fetch error:', err));
     }, [targetId]);
@@ -23,7 +23,7 @@ const CommentSection = ({ targetId, darkMode }) => {
 
         setLoading(true);
         try {
-            const res = await axios.post(`process.env.REACT_APP_API_URL/api/comments`, {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/comments`, {
                 targetId,
                 username: user,
                 text: text.trim()

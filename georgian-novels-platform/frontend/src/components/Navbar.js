@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Navbar = ({ darkMode, setDarkMode, user, onLogout, onOpenLogin }) => {
     const [profile, setProfile] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (user) {
