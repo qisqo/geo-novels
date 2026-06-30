@@ -8,7 +8,7 @@ const Profile = ({ darkMode }) => {
 
     useEffect(() => {
         if (currentUser) {
-            axios.get(`http://localhost:5000/api/users/profile/${currentUser}`)
+            axios.get(`process.env.REACT_APP_API_URL/api/users/profile/${currentUser}`)
                 .then(res => {
                     setProfile(res.data);
                     setLoading(false);
@@ -19,7 +19,7 @@ const Profile = ({ darkMode }) => {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`http://localhost:5000/api/users/profile/${currentUser}`, {
+            await axios.put(`process.env.REACT_APP_API_URL/api/users/profile/${currentUser}`, {
                 nickname: profile.nickname,
                 profilePicture: profile.profilePicture
             });
