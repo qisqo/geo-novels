@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+
 
 const PLANS = [
     { months: 1,  price: '₾9.99',  label: '1 თვე',  per: null,         saving: null },
