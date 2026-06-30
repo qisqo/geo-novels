@@ -1,223 +1,164 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Navbar = ({ darkMode, setDarkMode, user, onLogout, onOpenLogin }) => {
-    const [profile, setProfile] = useState(null);
-    const [menuOpen, setMenuOpen] = useState(false);
-    const navigate = useNavigate();
+const CommentSection = ({ targetId, darkMode }) => {
+    const [comments, setComments] = useState([]);
+    const [text, setText] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (user) {
-            axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile/${user}`)
-                .then(res => setProfile(res.data))
-                .catch(() => {});
-        } else {
-            setProfile(null);
-        }
-    }, [user]);
-
-    const isPremium =
-        profile?.subscriptionStatus === 'premium' &&
-        profile?.subscriptionExpiresAt &&
-        new Date(profile.subscriptionExpiresAt) > new Date();
-
+    const user = localStorage.getItem('user');
     const role = localStorage.getItem('role');
 
+    useEffect(() => {
+        if (!targetId) return;
+        axios.get(`process.env.REACT_APP_API_URL/api/comments/${targetId}`)
+            .then(res => setComments(res.data))
+            .catch(err => console.error('Comments fetch error:', err));
+    }, [targetId]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!text.trim()) return;
+        if (!user) return alert('კომენტარის დასაწერად გაიარეთ ავტორიზაცია');
+
+        setLoading(true);
+        try {
+            const res = await axios.post(`process.env.REACT_APP_API_URL/api/comments`, {
+                targetId,
+                username: user,
+                text: text.trim()
+            });
+            setComments(prev => [res.data, ...prev]);
+            setText('');
+        } catch (err) {
+            alert(err.response?.data?.message || 'კომენტარის გაგზავნა ვერ მოხერხდა');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (commentId) => {
+        if (!window.confirm('წაიშალოს კომენტარი?')) return;
+        try {
+            await axios.delete(`http://localhost:5000/api/comments/${targetId}/${commentId}`, {
+                data: { role }
+            });
+            setComments(prev => prev.filter(c => c._id !== commentId));
+        } catch (err) {
+            alert(err.response?.data?.message || 'წაშლა ვერ მოხერხდა');
+        }
+    };
+
+    const bg = darkMode ? '#1e1e1e' : '#fff';
+    const inputBg = darkMode ? '#2a2a2a' : '#f9f9f9';
+    const border = darkMode ? '#333' : '#e0e0e0';
+    const textColor = darkMode ? '#ddd' : '#333';
+    const subText = darkMode ? '#888' : '#999';
+
     return (
-        <nav style={styles.nav}>
-            <Link to="/" style={styles.logo}>
-                <span style={styles.logoG}>G</span>EO NOVELS
-            </Link>
+        <div style={{ marginTop: '50px', paddingTop: '30px', borderTop: `2px solid ${border}` }}>
+            <h3 style={{ color: textColor, marginBottom: '20px', fontSize: '1.2rem' }}>
+                💬 კომენტარები ({comments.length})
+            </h3>
 
-            <div style={styles.right}>
-                <button
-                    onClick={() => setDarkMode(!darkMode)}
-                    style={styles.iconBtn}
-                    title={darkMode ? 'Light mode' : 'Dark mode'}
-                >
-                    {darkMode ? '☀' : '☾'}
-                </button>
+            {user && (
+                <form onSubmit={handleSubmit} style={{ marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <textarea
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        placeholder="დაწერეთ კომენტარი..."
+                        rows={3}
+                        style={{
+                            padding: '12px',
+                            borderRadius: '10px',
+                            border: `1px solid ${border}`,
+                            backgroundColor: inputBg,
+                            color: textColor,
+                            fontSize: '0.95rem',
+                            resize: 'vertical',
+                            outline: 'none',
+                            fontFamily: 'inherit'
+                        }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                            type="submit"
+                            disabled={loading || !text.trim()}
+                            style={{
+                                padding: '10px 25px',
+                                backgroundColor: loading ? '#888' : '#3498db',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '20px',
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            {loading ? '...' : 'გაგზავნა'}
+                        </button>
+                    </div>
+                </form>
+            )}
 
-                {user ? (
-                    <>
-                        <Link to="/subscription" style={isPremium ? styles.premiumBadge : styles.upgradeBadge}>
-                            {isPremium ? '✦ Premium' : 'Upgrade'}
-                        </Link>
+            {comments.length === 0 && (
+                <p style={{ color: subText, textAlign: 'center', padding: '20px 0' }}>
+                    კომენტარები არ არის. პირველი იყავი!
+                </p>
+            )}
 
-                        <div style={styles.avatarWrap} onClick={() => setMenuOpen(o => !o)}>
-                            <img
-                                src={profile?.profilePicture || `https://ui-avatars.com/api/?name=${user}&background=7a5120&color=f0e8d8&bold=true`}
-                                alt={user}
-                                style={styles.avatar}
-                            />
-                            <span style={styles.username}>{profile?.nickname || user}</span>
-                            <span style={{ color: 'var(--cream-fade)', fontSize: '10px' }}>▾</span>
-                        </div>
-
-                        {menuOpen && (
-                            <div style={styles.dropdown}>
-                                <Link to="/profile" style={styles.dropItem} onClick={() => setMenuOpen(false)}>
-                                    პირადი გვერდი
-                                </Link>
-                                {role === 'admin' && (
-                                    <Link to="/add" style={styles.dropItem} onClick={() => setMenuOpen(false)}>
-                                        + ნოველის დამატება
-                                    </Link>
-                                )}
-                                <hr style={styles.dropDivider} />
-                                <button style={styles.dropLogout} onClick={() => { setMenuOpen(false); onLogout(); }}>
-                                    გამოსვლა
-                                </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {comments.map(comment => (
+                    <div key={comment._id} style={{
+                        backgroundColor: bg,
+                        border: `1px solid ${border}`,
+                        borderRadius: '12px',
+                        padding: '16px',
+                        display: 'flex',
+                        gap: '14px',
+                        alignItems: 'flex-start'
+                    }}>
+                        <img
+                            src={comment.profilePicture || 'https://via.placeholder.com/40'}
+                            alt={comment.username}
+                            style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <span style={{ fontWeight: 'bold', color: textColor, fontSize: '0.95rem' }}>
+                                    {comment.nickname || comment.username}
+                                </span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontSize: '0.78rem', color: subText }}>
+                                        {new Date(comment.createdAt).toLocaleDateString('ka-GE')}
+                                    </span>
+                                    {role === 'admin' && (
+                                        <button
+                                            onClick={() => handleDelete(comment._id)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#e74c3c',
+                                                cursor: 'pointer',
+                                                fontSize: '0.85rem',
+                                                padding: '2px 6px',
+                                                borderRadius: '4px'
+                                            }}
+                                        >
+                                            წაშლა
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        )}
-                    </>
-                ) : (
-                    <button onClick={onOpenLogin} style={styles.loginBtn}>შესვლა</button>
-                )}
+                            <p style={{ margin: 0, color: textColor, lineHeight: '1.6', fontSize: '0.95rem', wordBreak: 'break-word' }}>
+                                {comment.text}
+                            </p>
+                        </div>
+                    </div>
+                ))}
             </div>
-        </nav>
+        </div>
     );
 };
 
-const styles = {
-    nav: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0 32px',
-        height: '64px',
-        background: 'var(--ink-soft)',
-        borderBottom: '1px solid var(--ink-border)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        backdropFilter: 'blur(8px)',
-    },
-    logo: {
-        fontFamily: 'var(--font-display)',
-        fontSize: '1.4rem',
-        fontWeight: 700,
-        color: 'var(--cream)',
-        letterSpacing: '0.05em',
-        textDecoration: 'none',
-    },
-    logoG: {
-        color: 'var(--amber)',
-    },
-    right: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '16px',
-        position: 'relative',
-    },
-    iconBtn: {
-        background: 'none',
-        border: 'none',
-        fontSize: '18px',
-        color: 'var(--cream-dim)',
-        cursor: 'pointer',
-        padding: '6px',
-        borderRadius: '50%',
-        lineHeight: 1,
-    },
-    premiumBadge: {
-        background: 'var(--amber-dim)',
-        color: 'var(--amber-lt)',
-        padding: '4px 12px',
-        borderRadius: '20px',
-        fontSize: '0.78rem',
-        fontFamily: 'var(--font-ui)',
-        fontWeight: 600,
-        letterSpacing: '0.02em',
-        textDecoration: 'none',
-        border: '1px solid var(--amber-dim)',
-    },
-    upgradeBadge: {
-        color: 'var(--cream-dim)',
-        padding: '4px 12px',
-        borderRadius: '20px',
-        fontSize: '0.78rem',
-        fontFamily: 'var(--font-ui)',
-        border: '1px solid var(--ink-border)',
-        textDecoration: 'none',
-    },
-    avatarWrap: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        cursor: 'pointer',
-        padding: '4px 8px',
-        borderRadius: '20px',
-        transition: 'background 0.15s',
-    },
-    avatar: {
-        width: '34px',
-        height: '34px',
-        borderRadius: '50%',
-        objectFit: 'cover',
-        border: '2px solid var(--amber-dim)',
-    },
-    username: {
-        fontFamily: 'var(--font-ui)',
-        fontSize: '0.88rem',
-        fontWeight: 500,
-        color: 'var(--cream-dim)',
-    },
-    dropdown: {
-        position: 'absolute',
-        top: 'calc(100% + 12px)',
-        right: 0,
-        background: 'var(--ink-card)',
-        border: '1px solid var(--ink-border)',
-        borderRadius: 'var(--radius-md)',
-        boxShadow: 'var(--shadow-lg)',
-        minWidth: '180px',
-        padding: '6px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '2px',
-    },
-    dropItem: {
-        display: 'block',
-        padding: '9px 14px',
-        borderRadius: 'var(--radius-sm)',
-        fontSize: '0.88rem',
-        fontFamily: 'var(--font-ui)',
-        color: 'var(--cream-dim)',
-        textDecoration: 'none',
-        transition: 'background 0.1s',
-    },
-    dropDivider: {
-        border: 'none',
-        borderTop: '1px solid var(--ink-border)',
-        margin: '4px 0',
-    },
-    dropLogout: {
-        display: 'block',
-        padding: '9px 14px',
-        borderRadius: 'var(--radius-sm)',
-        fontSize: '0.88rem',
-        fontFamily: 'var(--font-ui)',
-        color: '#e88',
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        textAlign: 'left',
-        width: '100%',
-    },
-    loginBtn: {
-        background: 'var(--amber)',
-        color: 'var(--ink)',
-        border: 'none',
-        padding: '8px 20px',
-        borderRadius: '20px',
-        fontFamily: 'var(--font-ui)',
-        fontSize: '0.88rem',
-        fontWeight: 600,
-        cursor: 'pointer',
-        letterSpacing: '0.02em',
-    },
-};
-
-export default Navbar;
+export default CommentSection;
