@@ -14,7 +14,7 @@ const Home = ({ darkMode, onOpenLogin }) => {
     const navigate = useNavigate();
 
     const fetchNovels = () => {
-        axios.get('${process.env.REACT_APP_API_URL}/api/novels')
+        axios.get(`${process.env.REACT_APP_API_URL}/api/novels`)
             .then(res => {
                 setNovels(res.data);
                 setLoading(false);
@@ -68,7 +68,7 @@ const Home = ({ darkMode, onOpenLogin }) => {
             return alert("გთხოვთ გაიაროთ ავტორიზაცია!");
         }
         try {
-            const res = await axios.post('${process.env.REACT_APP_API_URL}/api/users/favorite', { username: user, novelId });
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/favorite`, { username: user, novelId });
             if (res.data.isFavorite) setUserFavorites(prev => [...prev, novelId]);
             else setUserFavorites(prev => prev.filter(id => id !== novelId));
         } catch (err) {
