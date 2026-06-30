@@ -28,7 +28,7 @@ const Home = ({ darkMode, onOpenLogin }) => {
     useEffect(() => {
         fetchNovels();
         if (user) {
-            axios.get(`http://localhost:5000/api/users/favorites/${user}`)
+            axios.get(`process.env.REACT_APP_API_URL/api/users/favorites/${user}`)
                 .then(res => setUserFavorites(res.data))
                 .catch(err => console.log("Favorites fetch error:", err));
         }
