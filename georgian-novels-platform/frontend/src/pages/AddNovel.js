@@ -23,7 +23,7 @@ const AddNovel = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('${process.env.REACT_APP_API_URL}/api/novels', 
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/novels`, 
                 { title, author, description, coverImage, chapters },
                 { headers: { adminusername: user } }
             );
