@@ -19,6 +19,7 @@ const Reader = ({ fontSize, setFontSize }) => {
     const safeSetFontSize = typeof setFontSize === 'function' ? setFontSize : () => {};
 
     useEffect(() => {
+<<<<<<< HEAD
         axios.get(`http://localhost:5000/api/novels/${id}`).then(res => setNovel(res.data));
         window.scrollTo(0, 0);
         if (username) {
@@ -27,6 +28,11 @@ const Reader = ({ fontSize, setFontSize }) => {
                 .catch(() => {});
         }
     }, [id, chapterIndex, username]);
+=======
+        axios.get(`${process.env.REACT_APP_API_URL}/api/novels/${id}`).then(res => setNovel(res.data));
+        window.scrollTo(0, 0); 
+    }, [id, chapterIndex]);
+>>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2
 
     useEffect(() => {
         const onScroll = () => {
