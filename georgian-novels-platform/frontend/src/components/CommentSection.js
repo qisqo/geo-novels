@@ -3,64 +3,156 @@ import axios from 'axios';
 
 const CommentSection = ({ targetId, darkMode }) => {
     const [comments, setComments] = useState([]);
-    const [newComment, setNewComment] = useState("");
-    const user = localStorage.getItem('user');
+    const [text, setText] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const fetchComments = () => {
-        axios.get(`http://localhost:5000/api/comments/${targetId}`)
-            .then(res => setComments(res.data))
-            .catch(err => console.log(err));
-    };
+    const user = localStorage.getItem('user');
+    const role = localStorage.getItem('role');
 
     useEffect(() => {
-        fetchComments();
+        if (!targetId) return;
+        axios.get(`process.env.REACT_APP_API_URL/api/comments/${targetId}`)
+            .then(res => setComments(res.data))
+            .catch(err => console.error('Comments fetch error:', err));
     }, [targetId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!user) return alert("კომენტარის დასაწერად გაიარეთ ავტორიზაცია");
-        if (!newComment.trim()) return;
+        if (!text.trim()) return;
+        if (!user) return alert('კომენტარის დასაწერად გაიარეთ ავტორიზაცია');
 
+        setLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/comments', {
+            const res = await axios.post(`process.env.REACT_APP_API_URL/api/comments`, {
                 targetId,
                 username: user,
-                text: newComment
+                text: text.trim()
             });
-            setNewComment("");
-            fetchComments();
+            setComments(prev => [res.data, ...prev]);
+            setText('');
         } catch (err) {
-            alert("შეცდომა კომენტარის გაგზავნისას");
+            alert(err.response?.data?.message || 'კომენტარის გაგზავნა ვერ მოხერხდა');
+        } finally {
+            setLoading(false);
         }
     };
 
-    return (
-        <div style={{ marginTop: '40px', padding: '20px', borderTop: '1px solid #ddd', color: darkMode ? '#fff' : '#000' }}>
-            <h3>💬 კომენტარები ({comments.length})</h3>
-            
-            {user ? (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
-                    <input 
-                        value={newComment} 
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="დაწერე აზრი..." 
-                        style={inputStyle(darkMode)}
-                    />
-                    <button type="submit" style={sendBtn}>გაგზავნა</button>
-                </form>
-            ) : <p style={{ opacity: 0.7 }}>კომენტარის დასატოვებლად შედით სისტემაში.</p>}
+    const handleDelete = async (commentId) => {
+        if (!window.confirm('წაიშალოს კომენტარი?')) return;
+        try {
+            await axios.delete(`http://localhost:5000/api/comments/${targetId}/${commentId}`, {
+                data: { role }
+            });
+            setComments(prev => prev.filter(c => c._id !== commentId));
+        } catch (err) {
+            alert(err.response?.data?.message || 'წაშლა ვერ მოხერხდა');
+        }
+    };
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {comments.length === 0 && <p style={{ opacity: 0.5 }}>ჯერ კომენტარები არ არის...</p>}
-                {comments.map(c => (
-                    <div key={c._id} style={commentCard(darkMode)}>
-                        <img src={c.profilePicture || 'https://via.placeholder.com/150'} alt="Avatar" style={avatarStyle} />
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#3498db' }}>{c.nickname}</div>
-                            <div style={{ marginTop: '5px', lineHeight: '1.4' }}>{c.text}</div>
-                            <div style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '8px' }}>
-                                {new Date(c.createdAt).toLocaleString('ka-GE')}
+    const bg = darkMode ? '#1e1e1e' : '#fff';
+    const inputBg = darkMode ? '#2a2a2a' : '#f9f9f9';
+    const border = darkMode ? '#333' : '#e0e0e0';
+    const textColor = darkMode ? '#ddd' : '#333';
+    const subText = darkMode ? '#888' : '#999';
+
+    return (
+        <div style={{ marginTop: '50px', paddingTop: '30px', borderTop: `2px solid ${border}` }}>
+            <h3 style={{ color: textColor, marginBottom: '20px', fontSize: '1.2rem' }}>
+                💬 კომენტარები ({comments.length})
+            </h3>
+
+            {user && (
+                <form onSubmit={handleSubmit} style={{ marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <textarea
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        placeholder="დაწერეთ კომენტარი..."
+                        rows={3}
+                        style={{
+                            padding: '12px',
+                            borderRadius: '10px',
+                            border: `1px solid ${border}`,
+                            backgroundColor: inputBg,
+                            color: textColor,
+                            fontSize: '0.95rem',
+                            resize: 'vertical',
+                            outline: 'none',
+                            fontFamily: 'inherit'
+                        }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                            type="submit"
+                            disabled={loading || !text.trim()}
+                            style={{
+                                padding: '10px 25px',
+                                backgroundColor: loading ? '#888' : '#3498db',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '20px',
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            {loading ? '...' : 'გაგზავნა'}
+                        </button>
+                    </div>
+                </form>
+            )}
+
+            {comments.length === 0 && (
+                <p style={{ color: subText, textAlign: 'center', padding: '20px 0' }}>
+                    კომენტარები არ არის. პირველი იყავი!
+                </p>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {comments.map(comment => (
+                    <div key={comment._id} style={{
+                        backgroundColor: bg,
+                        border: `1px solid ${border}`,
+                        borderRadius: '12px',
+                        padding: '16px',
+                        display: 'flex',
+                        gap: '14px',
+                        alignItems: 'flex-start'
+                    }}>
+                        <img
+                            src={comment.profilePicture || 'https://via.placeholder.com/40'}
+                            alt={comment.username}
+                            style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <span style={{ fontWeight: 'bold', color: textColor, fontSize: '0.95rem' }}>
+                                    {comment.nickname || comment.username}
+                                </span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontSize: '0.78rem', color: subText }}>
+                                        {new Date(comment.createdAt).toLocaleDateString('ka-GE')}
+                                    </span>
+                                    {role === 'admin' && (
+                                        <button
+                                            onClick={() => handleDelete(comment._id)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#e74c3c',
+                                                cursor: 'pointer',
+                                                fontSize: '0.85rem',
+                                                padding: '2px 6px',
+                                                borderRadius: '4px'
+                                            }}
+                                        >
+                                            წაშლა
+                                        </button>
+                                    )}
+                                </div>
                             </div>
+                            <p style={{ margin: 0, color: textColor, lineHeight: '1.6', fontSize: '0.95rem', wordBreak: 'break-word' }}>
+                                {comment.text}
+                            </p>
                         </div>
                     </div>
                 ))}
@@ -68,10 +160,5 @@ const CommentSection = ({ targetId, darkMode }) => {
         </div>
     );
 };
-
-const inputStyle = (darkMode) => ({ flex: 1, padding: '12px 20px', borderRadius: '25px', border: '1px solid #ccc', outline: 'none', backgroundColor: darkMode ? '#333' : '#fff', color: darkMode ? '#fff' : '#000' });
-const sendBtn = { padding: '10px 25px', background: '#3498db', color: '#fff', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold' };
-const commentCard = (darkMode) => ({ display: 'flex', gap: '15px', padding: '15px', borderRadius: '15px', backgroundColor: darkMode ? '#333' : '#f9f9f9', border: darkMode ? '1px solid #444' : '1px solid #eee' });
-const avatarStyle = { width: '45px', height: '45px', borderRadius: '50%', objectFit: 'cover' };
 
 export default CommentSection;
