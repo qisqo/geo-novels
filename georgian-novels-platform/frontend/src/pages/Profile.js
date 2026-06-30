@@ -12,15 +12,10 @@ const Profile = () => {
     const role = localStorage.getItem('role');
 
     useEffect(() => {
-<<<<<<< HEAD
         if (!currentUser) return;
         Promise.all([
-            axios.get(`http://localhost:5000/api/users/profile/${currentUser}`),
-            axios.get(`http://localhost:5000/api/users/favorites/${currentUser}`)
-=======
-        if (currentUser) {
-            axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile/${currentUser}`)
->>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2
+            axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile/${currentUser}`),
+            axios.get(`${process.env.REACT_APP_API_URL}/api/users/favorites/${currentUser}`)
                 .then(res => {
                     // favorites returns IDs; fetch novel titles if any
                     return res.data;
@@ -29,7 +24,7 @@ const Profile = () => {
             setProfile(profileRes.data);
             // fetch novel details for each favorite
             if (favIds.length) {
-                axios.get('http://localhost:5000/api/novels')
+                axios.get(`${process.env.REACT_APP_API_URL}/api/novels`)
                     .then(r => setFavoriteNovels(r.data.filter(n => favIds.includes(n._id))))
                     .catch(() => {});
             }
@@ -177,7 +172,6 @@ const Profile = () => {
     );
 };
 
-<<<<<<< HEAD
 const s = {
     page: { minHeight: '100vh', padding: '48px 24px 80px' },
     loading: { textAlign: 'center', padding: '120px 0', color: 'var(--cream-fade)', fontFamily: 'var(--font-ui)' },
@@ -223,6 +217,3 @@ const s = {
 };
 
 export default Profile;
-=======
-export default Profile;
->>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2

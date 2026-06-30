@@ -46,11 +46,7 @@ const Home = ({ onOpenLogin }) => {
     const navigate = useNavigate();
 
     const fetchNovels = () => {
-<<<<<<< HEAD
-        axios.get('http://localhost:5000/api/novels')
-=======
         axios.get(`${process.env.REACT_APP_API_URL}/api/novels`)
->>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2
             .then(res => { setNovels(res.data); setLoading(false); })
             .catch(() => setLoading(false));
     };
@@ -82,11 +78,7 @@ const Home = ({ onOpenLogin }) => {
         e.stopPropagation();
         if (!window.confirm('წაიშალოს ნოველა?')) return;
         try {
-<<<<<<< HEAD
-            await axios.delete(`http://localhost:5000/api/novels/${id}`, { headers: { adminusername: user } });
-=======
             await axios.delete(`${process.env.REACT_APP_API_URL}/api/novels/${id}`, { headers: { adminusername: user } });
->>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2
             fetchNovels();
         } catch { alert('წაშლა ვერ მოხერხდა.'); }
     };
@@ -95,11 +87,7 @@ const Home = ({ onOpenLogin }) => {
         e.stopPropagation();
         if (!user) return typeof onOpenLogin === 'function' ? onOpenLogin() : null;
         try {
-<<<<<<< HEAD
-            const res = await axios.post('http://localhost:5000/api/users/favorite', { username: user, novelId });
-=======
             const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/favorite`, { username: user, novelId });
->>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2
             setUserFavorites(res.data.favorites || []);
         } catch {}
     };
@@ -395,202 +383,6 @@ const Home = ({ onOpenLogin }) => {
 
 const s = {
     page: { minHeight: '100vh', padding: '0 0 80px' },
-<<<<<<< HEAD
-
-    hero: {
-        textAlign: 'center',
-        padding: '64px 24px 48px',
-        borderBottom: '1px solid var(--ink-border)',
-        background: 'linear-gradient(180deg, var(--ink-soft) 0%, var(--ink) 100%)',
-    },
-    eyebrow: {
-        fontFamily: 'var(--font-ui)', fontSize: '0.72rem', fontWeight: 500,
-        letterSpacing: '0.18em', textTransform: 'uppercase',
-        color: 'var(--amber)', margin: '0 0 14px',
-    },
-    heroTitle: {
-        fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 5vw, 3rem)',
-        fontWeight: 700, color: 'var(--cream)', margin: '0 0 12px', lineHeight: 1.15,
-    },
-    heroSub: {
-        fontFamily: 'var(--font-ui)', fontSize: '0.95rem',
-        color: 'var(--cream-fade)', margin: '0 0 32px',
-    },
-    searchRow: {
-        display: 'flex', gap: '10px', maxWidth: '580px', margin: '0 auto 16px', alignItems: 'center',
-    },
-    searchWrap: { position: 'relative', flex: 1 },
-    searchIcon: {
-        position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)',
-        fontSize: '18px', color: 'var(--cream-fade)', pointerEvents: 'none',
-    },
-    searchInput: {
-        width: '100%', padding: '13px 18px 13px 44px',
-        background: 'var(--ink-card)', border: '1px solid var(--ink-border)',
-        borderRadius: '28px', color: 'var(--cream)', fontSize: '0.9rem',
-        fontFamily: 'var(--font-ui)', outline: 'none', boxSizing: 'border-box',
-    },
-    filterToggle: {
-        display: 'flex', alignItems: 'center', gap: '7px', position: 'relative',
-        padding: '12px 18px', background: 'var(--ink-card)',
-        border: '1px solid var(--ink-border)', borderRadius: '28px',
-        color: 'var(--cream-dim)', fontFamily: 'var(--font-ui)', fontSize: '0.85rem',
-        cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-    },
-    filterToggleActive: {
-        border: '1px solid var(--amber)', color: 'var(--amber-lt)',
-    },
-    filterDot: {
-        position: 'absolute', top: '9px', right: '9px',
-        width: '7px', height: '7px', borderRadius: '50%', background: 'var(--amber)',
-    },
-    addBtn: {
-        background: 'var(--amber)', color: 'var(--ink)',
-        padding: '8px 20px', borderRadius: '20px',
-        fontFamily: 'var(--font-ui)', fontSize: '0.85rem', fontWeight: 600,
-        textDecoration: 'none', display: 'inline-block',
-    },
-
-    body: {
-        display: 'flex', gap: '0', maxWidth: '1320px', margin: '0 auto', padding: '0 28px',
-    },
-
-    // Floating filter panel
-    panel: {
-        position: 'sticky', top: '80px', alignSelf: 'flex-start',
-        width: '240px', flexShrink: 0,
-        background: 'var(--ink-card)', border: '1px solid var(--ink-border)',
-        borderRadius: 'var(--radius-lg)', marginTop: '32px',
-        transition: 'opacity 0.2s ease, transform 0.2s ease, visibility 0.2s',
-        overflow: 'hidden',
-    },
-    panelHeader: {
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '16px 16px 12px', borderBottom: '1px solid var(--ink-border)',
-    },
-    panelTitle: {
-        fontFamily: 'var(--font-ui)', fontWeight: 600,
-        fontSize: '0.82rem', color: 'var(--cream-dim)', letterSpacing: '0.04em',
-    },
-    resetBtn: {
-        background: 'none', border: 'none', color: 'var(--amber)',
-        fontFamily: 'var(--font-ui)', fontSize: '0.75rem',
-        cursor: 'pointer', padding: '2px 0',
-    },
-    filterSection: { padding: '14px 16px' },
-    filterLabel: {
-        fontFamily: 'var(--font-ui)', fontSize: '0.72rem', fontWeight: 600,
-        letterSpacing: '0.1em', textTransform: 'uppercase',
-        color: 'var(--cream-fade)', margin: '0 0 10px',
-    },
-    sortGrid: { display: 'flex', flexDirection: 'column', gap: '4px' },
-    sortChip: {
-        display: 'flex', alignItems: 'center', gap: '8px',
-        padding: '8px 12px', borderRadius: 'var(--radius-sm)',
-        background: 'none', border: '1px solid transparent',
-        color: 'var(--cream-dim)', fontFamily: 'var(--font-ui)',
-        fontSize: '0.85rem', cursor: 'pointer', textAlign: 'left',
-        transition: 'all 0.12s',
-    },
-    sortChipActive: {
-        background: 'var(--amber-dim)', border: '1px solid var(--amber)',
-        color: 'var(--amber-lt)', fontWeight: 600,
-    },
-    divider: { height: '1px', background: 'var(--ink-border)', margin: '0 16px' },
-    sliderLabelRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' },
-    sliderVal: { fontFamily: 'var(--font-ui)', fontSize: '0.82rem', fontWeight: 600, color: 'var(--amber)' },
-    slider: { width: '100%', accentColor: 'var(--amber)', cursor: 'pointer' },
-    sliderTicks: { display: 'flex', justifyContent: 'space-between', marginTop: '4px' },
-    tick: { fontFamily: 'var(--font-ui)', fontSize: '0.7rem', transition: 'color 0.1s' },
-    toggleList: { display: 'flex', flexDirection: 'column', gap: '4px' },
-    toggleRow: {
-        display: 'flex', alignItems: 'center', gap: '10px',
-        padding: '9px 12px', borderRadius: 'var(--radius-sm)',
-        background: 'none', border: '1px solid transparent',
-        cursor: 'pointer', width: '100%', textAlign: 'left',
-        transition: 'all 0.12s',
-    },
-    toggleRowActive: { background: 'var(--amber-dim)', border: '1px solid var(--amber)' },
-    toggleIcon: { fontSize: '14px', color: 'var(--cream-fade)', flexShrink: 0 },
-    toggleText: { flex: 1, fontFamily: 'var(--font-ui)', fontSize: '0.83rem', color: 'var(--cream-dim)' },
-    togglePip: { width: '10px', height: '10px', borderRadius: '50%', flexShrink: 0, transition: 'background 0.15s' },
-    panelFooter: {
-        padding: '12px 16px', borderTop: '1px solid var(--ink-border)',
-        background: 'var(--ink-raised)',
-    },
-    resultCount: { fontFamily: 'var(--font-ui)', fontSize: '0.78rem', color: 'var(--amber)', fontWeight: 600 },
-
-    gridArea: { flex: 1, minWidth: 0, paddingLeft: '28px' },
-    sortStrip: {
-        display: 'flex', alignItems: 'center', gap: '12px',
-        padding: '28px 0 20px', flexWrap: 'wrap',
-    },
-    sortStripLabel: {
-        fontFamily: 'var(--font-ui)', fontSize: '0.82rem', color: 'var(--cream-fade)',
-        marginRight: 'auto',
-    },
-    sortPills: { display: 'flex', gap: '6px', flexWrap: 'wrap' },
-    sortPill: {
-        padding: '5px 13px', borderRadius: '16px',
-        background: 'var(--ink-card)', border: '1px solid var(--ink-border)',
-        color: 'var(--cream-fade)', fontFamily: 'var(--font-ui)', fontSize: '0.78rem',
-        cursor: 'pointer', transition: 'all 0.12s',
-    },
-    sortPillActive: {
-        background: 'var(--amber-dim)', border: '1px solid var(--amber)',
-        color: 'var(--amber-lt)', fontWeight: 600,
-    },
-
-    loadingWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '100px 0' },
-    spinner: { width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--ink-border)', borderTopColor: 'var(--amber)' },
-    empty: { textAlign: 'center', padding: '80px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' },
-
-    grid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
-        gap: '24px',
-    },
-    card: {
-        background: 'var(--ink-card)', borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden', border: '1px solid var(--ink-border)',
-        cursor: 'pointer', transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    },
-    coverWrap: { position: 'relative', aspectRatio: '2/3', overflow: 'hidden' },
-    cover: { width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.35s ease' },
-    coverOverlay: { position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.1) 55%, transparent 100%)' },
-    ratingPill: {
-        position: 'absolute', top: '10px', left: '10px',
-        background: 'rgba(0,0,0,.65)', color: 'var(--cream)',
-        padding: '3px 9px', borderRadius: '10px',
-        fontSize: '0.78rem', fontFamily: 'var(--font-ui)', fontWeight: 600,
-        backdropFilter: 'blur(4px)',
-    },
-    heartBtn: {
-        position: 'absolute', top: '8px', right: '8px',
-        background: 'rgba(0,0,0,.5)', border: 'none',
-        borderRadius: '50%', width: '30px', height: '30px',
-        fontSize: '15px', cursor: 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-    },
-    adminBtns: { position: 'absolute', top: '8px', left: '8px', display: 'flex', flexDirection: 'column', gap: '5px' },
-    adminIconBtn: { background: 'rgba(0,0,0,.6)', color: 'var(--cream)', border: 'none', borderRadius: '6px', padding: '4px 7px', fontSize: '13px', cursor: 'pointer', textDecoration: 'none', display: 'block' },
-    adminIconBtnDanger: { background: 'rgba(180,40,40,.7)', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 7px', fontSize: '13px', cursor: 'pointer' },
-    cardBottom: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px' },
-    cardTitle: { fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.95rem', color: '#fff', margin: '0 0 3px', lineHeight: 1.3 },
-    cardAuthor: { fontFamily: 'var(--font-ui)', fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', margin: 0 },
-    cardMeta: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', gap: '8px' },
-    cardMetaLeft: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
-    chapterCount: { fontFamily: 'var(--font-ui)', fontSize: '0.75rem', color: 'var(--cream-fade)' },
-    newestChapter: { fontFamily: 'var(--font-ui)', fontSize: '0.68rem', color: 'var(--amber)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-    readBtn: {
-        background: 'var(--amber)', color: 'var(--ink)', border: 'none',
-        padding: '6px 14px', borderRadius: '14px',
-        fontFamily: 'var(--font-ui)', fontSize: '0.78rem', fontWeight: 600,
-        cursor: 'pointer', flexShrink: 0,
-    },
-};
-=======
->>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2
 
     hero: {
         textAlign: 'center',

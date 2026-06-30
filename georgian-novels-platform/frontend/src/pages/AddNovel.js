@@ -174,8 +174,4 @@ const s = {
     submitBtn: { background: 'var(--amber)', color: 'var(--ink)', border: 'none', padding: '13px 32px', borderRadius: '24px', fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: '0.95rem', cursor: 'pointer' },
 };
 
-<<<<<<< HEAD
 export default AddNovel;
-=======
-export default AddNovel;
->>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2

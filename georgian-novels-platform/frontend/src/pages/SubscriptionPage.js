@@ -23,7 +23,7 @@ const SubscriptionPage = ({ user: userProp }) => {
 
     useEffect(() => {
         if (!user) { setProfileLoading(false); return; }
-        axios.get(`http://localhost:5000/api/users/profile/${user}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile/${user}`)
             .then(res => setProfile(res.data))
             .catch(() => {})
             .finally(() => setProfileLoading(false));
@@ -38,9 +38,9 @@ const SubscriptionPage = ({ user: userProp }) => {
         setActionLoading(true);
         setMessage({ text: '', type: '' });
         try {
-            const res = await axios.post('http://localhost:5000/api/subscription/upgrade', { username: user, months });
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/subscription/upgrade`, { username: user, months });
             setMessage({ text: res.data.message, type: 'success' });
-            const updated = await axios.get(`http://localhost:5000/api/users/profile/${user}`);
+            const updated = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile/${user}`);
             setProfile(updated.data);
         } catch (err) {
             setMessage({ text: err.response?.data?.message || 'შეცდომა მოხდა', type: 'error' });
@@ -53,9 +53,9 @@ const SubscriptionPage = ({ user: userProp }) => {
         if (!window.confirm('გამოწერის გაუქმება?')) return;
         setActionLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/subscription/cancel', { username: user });
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/subscription/cancel`, { username: user });
             setMessage({ text: res.data.message, type: 'success' });
-            const updated = await axios.get(`http://localhost:5000/api/users/profile/${user}`);
+            const updated = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile/${user}`);
             setProfile(updated.data);
         } catch (err) {
             setMessage({ text: err.response?.data?.message || 'შეცდომა', type: 'error' });

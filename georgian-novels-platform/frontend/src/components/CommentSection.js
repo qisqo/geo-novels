@@ -40,7 +40,7 @@ const CommentSection = ({ targetId, darkMode }) => {
     const handleDelete = async (commentId) => {
         if (!window.confirm('წაიშალოს კომენტარი?')) return;
         try {
-            await axios.delete(`http://localhost:5000/api/comments/${targetId}/${commentId}`, {
+            await axios.delete(`${process.env.REACT_APP_API_URL}/api/comments/${targetId}/${commentId}`, {
                 data: { role }
             });
             setComments(prev => prev.filter(c => c._id !== commentId));
@@ -161,8 +161,4 @@ const CommentSection = ({ targetId, darkMode }) => {
     );
 };
 
-<<<<<<< HEAD
 export default CommentSection;
-=======
-export default CommentSection;
->>>>>>> 4c5c1b4bb8c0ba309470d412ccbc2be105ad23c2
